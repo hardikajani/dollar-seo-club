@@ -6,18 +6,18 @@ import { getGeneratedText } from '@/utils/generateText';
 
 axiosRetry(axios, { retries: 2, retryDelay: axiosRetry.exponentialDelay });
 
-async function fetchWebContent(url) {
+async function fetchWebContent(url:any) {
   try {
     const response = await axios.get(url, { timeout: 10000 });
     const $ = cheerio.load(response.data);
     return $('body').text().replace(/\s+/g, ' ').trim();
-  } catch (error) {
+  } catch (error:any) {
     console.error(`Error fetching ${url}:`, error.message);
     return null;
   }
 }
 
-async function fetchSearchResults(query) {
+async function fetchSearchResults(query:any) {
   // Replace this with an actual search engine API call
   // This is a mock implementation
   return `Search results for "${query}": 
@@ -79,7 +79,7 @@ export async function POST(req: Request) {
     const generatedText = await getGeneratedText(prompt);
 
     return NextResponse.json({ text: generatedText });
-  } catch (error) {
+  } catch (error:any) {
     console.error('Error generating text:', error);
     return new Response(`Error: ${error.message}`, { status: 500 });
   }
