@@ -1,10 +1,15 @@
 "use client"
 
 import { useState } from 'react'
-import { ChevronDown, CircleArrowDown } from 'lucide-react'
+import { CircleArrowDown } from 'lucide-react'
+
+interface QuotationItem {
+  title: string;
+  description: string;
+}
 
 
-const quotation = [
+const quotation:QuotationItem[] = [
   {
     title: 'How much does it cost?',
     description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatum.'
@@ -20,9 +25,9 @@ const quotation = [
 ]
 
 const Faq = () => {
-  const [openIndex, setOpenIndex] = useState(null)
+  const [openIndex, setOpenIndex] = useState<number | null>(null)
 
-  const toggleFaq = (index) => {
+  const toggleFaq = (index: number) => {
     setOpenIndex(openIndex === index ? null : index)
   }
 
