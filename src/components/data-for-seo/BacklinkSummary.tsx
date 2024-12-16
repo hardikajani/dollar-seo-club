@@ -1,11 +1,43 @@
-import React from 'react';
 
-const BacklinkSummary = ({ data }) => {
+interface SummaryData {
+  target: string;
+  backlinks: number;
+  referring_domains: number;
+  broken_backlinks: number;
+  referring_links_tld: { [key: string]: number };
+  referring_links_types: { [key: string]: number };
+  referring_links_platform_types: { [key: string]: number };
+  rank: number;
+}
+
+interface BacklinksData {
+  total_count: number;
+}
+
+interface ReferringDomainsData {
+  // Add properties if needed
+}
+
+interface BacklinkSummaryProps {
+  data: {
+    summary: {
+      tasks: [{ result: [SummaryData] }];
+    };
+    backlinks: {
+      tasks: [{ result: [BacklinksData] }];
+    };
+    referringDomains: {
+      tasks: [{ result: [ReferringDomainsData] }];
+    };
+  };
+}
+
+const BacklinkSummary: React.FC<BacklinkSummaryProps> = ({ data }) => {
   const summaryData = data.summary.tasks[0].result[0];
   const backlinksData = data.backlinks.tasks[0].result[0];
   const referringDomainsData = data.referringDomains.tasks[0].result[0];
 
-  const target = summaryData.target
+  const target = summaryData.target;
   const totalBacklinks = summaryData.backlinks;
   const referringDomains = summaryData.referring_domains;
   const dofollowBacklinks = backlinksData.total_count;
