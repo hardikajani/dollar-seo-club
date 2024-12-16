@@ -6,7 +6,7 @@ import { useAuth } from '@clerk/nextjs';
 import { IOrder } from '@/model/order.Model';
 
 export const useOrderHistory = () => {
-    const [orderHistory, setOrderHistory] = useState<IOrder | null>(null);
+    const [orderHistory, setOrderHistory] = useState<IOrder[] | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const { userId } = useAuth();

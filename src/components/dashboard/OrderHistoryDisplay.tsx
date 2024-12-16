@@ -15,11 +15,11 @@ const OrderHistoryDisplay: React.FC = () => {
     <div className="container mx-auto px-4 py-8">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Order History</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {orderHistory.map((order) => (
-          <div key={order._id} className="bg-white rounded-lg shadow-lg p-4 border-2 border-gray-200">
+        {orderHistory.map((order, index) => (
+          <div key={index} className="bg-white rounded-lg shadow-lg p-4 border-2 border-gray-200">
             <div className="flex justify-between items-center mb-2">
               <span className="text-base font-medium text-gray-600">Order ID:</span>
-              <span className="text-base text-gray-800">{order._id.slice(-6)}</span>
+              <span className="text-base text-gray-800">{order.userId.slice(-6)}</span>
             </div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-base font-medium text-gray-600">Amount:</span>
