@@ -220,14 +220,20 @@ export default function RankingKeywordDisplay() {
                                     )}
                                     <h3 className="text-xl font-semibold mt-4 mb-2">Search Intent</h3>
                                     {rankedKeywords.length > 0 && (
-                                        rankedKeywords.find(item => item.keyword_data.keyword === selectedKeyword)?.keyword_data.search_intent_info ? (
-                                            <ul className="list-disc pl-5">
-                                                <li>Main Intent: {rankedKeywords.find(item => item.keyword_data.keyword === selectedKeyword)?.keyword_data.search_intent_info.main_intent || 'N/A'}</li>
-                                                <li>Last Updated: {new Date(rankedKeywords.find(item => item.keyword_data.keyword === selectedKeyword)?.keyword_data.search_intent_info.last_updated_time || '').toLocaleDateString() || 'N/A'}</li>
-                                            </ul>
-                                        ) : (
-                                            <p>No search intent information available</p>
-                                        )
+                                        // Use optional chaining and provide a fallback
+                                        (() => {
+                                            const foundItem = rankedKeywords.find(item => item.keyword_data.keyword === selectedKeyword);
+                                            const searchIntentInfo = foundItem?.keyword_data.search_intent_info;
+
+                                            return searchIntentInfo ? (
+                                                <ul className="list-disc pl-5">
+                                                    <li>Main Intent: {searchIntentInfo.main_intent || 'N/A'}</li>
+                                                    <li>Last Updated: {searchIntentInfo.last_updated_time ? new Date(searchIntentInfo.last_updated_time).toLocaleDateString() : 'N/A'}</li>
+                                                </ul>
+                                            ) : (
+                                                <p>No search intent information available</p>
+                                            );
+                                        })()
                                     )}
                                 </div>
                             </div>

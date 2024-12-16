@@ -1,11 +1,41 @@
 import React from 'react';
 
-const SEODataDisplay = ({ data }) => {
+interface SEOData {
+  onPage: any;
+  keywordForSite: KeywordForSiteData;
+  keywordSuggestions: any;
+  rankedKeywords: any;
+  backlinksSummary: any;
+}
+
+interface SEODataDisplayProps {
+  data: SEOData;
+}
+
+interface KeywordInfo {
+  keyword: string;
+  keyword_info: {
+    search_volume: number;
+    cpc?: number; // Optional if it can be undefined
+    competition_level: string;
+  };
+}
+
+interface KeywordForSiteData {
+  tasks: {
+    result: {
+      items: KeywordInfo[];
+    }[];
+  }[];
+}
+
+const SEODataDisplay: React.FC<{ data: SEOData }> = ({ data }) => {
   const { onPage, keywordForSite, keywordSuggestions, rankedKeywords, backlinksSummary } = data;
 
   // Helper function to safely access nested properties
-  const safelyAccessNestedProp = (obj, path, defaultValue = 'N/A') => {
-    return path.split('.').reduce((acc, part) => acc && acc[part], obj) ?? defaultValue;
+  const safelyAccessNestedProp = (obj: any, path: string, defaultValue: any = 'N/A', transform?: (value: any) => any) => {
+    const value = path.split('.').reduce((acc, part) => acc && acc[part], obj);
+    return value !== undefined ? (transform ? transform(value) : value) : defaultValue;
   };
 
   return (
@@ -41,11 +71,11 @@ const SEODataDisplay = ({ data }) => {
               </tr>
             </thead>
             <tbody>
-              {safelyAccessNestedProp(keywordForSite, 'tasks.0.result.0.items', []).map((item, index) => (
+              {safelyAccessNestedProp(keywordForSite, 'tasks.0.result.0.items', []).map((item: any, index: number) => (
                 <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
                   <td className="border px-4 py-2">{item.keyword}</td>
                   <td className="border px-4 py-2">{safelyAccessNestedProp(item, 'keyword_info.search_volume')}</td>
-                  <td className="border px-4 py-2">${safelyAccessNestedProp(item, 'keyword_info.cpc', 'N/A', (value) => value.toFixed(2))}</td>
+                  <td className="border px-4 py-2">${safelyAccessNestedProp(item, ' keyword_info.cpc', 'N/A', (value) => value.toFixed(2))}</td>
                   <td className="border px-4 py-2">{safelyAccessNestedProp(item, 'keyword_info.competition_level')}</td>
                 </tr>
               ))}
@@ -71,9 +101,9 @@ const SEODataDisplay = ({ data }) => {
           </div>
           <div>
             <p className="font-medium">Top 10 Rankings: {
-              (safelyAccessNestedProp(rankedKeywords, 'tasks.0.result.0.metrics.organic.pos_1', 0) +
-               safelyAccessNestedProp(rankedKeywords, 'tasks.0.result.0.metrics.organic.pos_2_3', 0) +
-               safelyAccessNestedProp(rankedKeywords, 'tasks.0.result.0.metrics.organic.pos_4_10', 0))
+              (Number(safelyAccessNestedProp(rankedKeywords, 'tasks.0.result.0.metrics.organic.pos_1', 0)) +
+                Number(safelyAccessNestedProp(rankedKeywords, 'tasks.0.result.0.metrics.organic.pos_2_3', 0)) +
+                Number(safelyAccessNestedProp(rankedKeywords, 'tasks.0.result.0.metrics.organic.pos_4_10', 0))).toString()
             }</p>
             <p className="font-medium">New Rankings: {safelyAccessNestedProp(rankedKeywords, 'tasks.0.result.0.metrics.organic.is_new')}</p>
           </div>
