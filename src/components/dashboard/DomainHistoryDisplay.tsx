@@ -16,8 +16,8 @@ const DomainHistoryDisplay: React.FC = () => {
         <div className="container mx-auto px-4 py-8">
             <h2 className="text-3xl font-bold text-gray-800 mb-6">Domain History</h2>
             <div className="space-y-6">
-                {domainHistory.map((domain) => (
-                    <div key={domain._id} className="bg-white rounded-lg shadow-md p-6">
+                {domainHistory.map((domain, index) => (
+                    <div key={index} className="bg-white rounded-lg shadow-md p-6">
                         <div className="flex items-center mb-4">
                             <FaGlobe className="text-blue-500 mr-2" />
                             <h3 className="text-xl font-semibold text-gray-800">{domain.domain}</h3>
