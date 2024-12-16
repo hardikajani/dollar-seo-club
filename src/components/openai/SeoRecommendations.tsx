@@ -8,7 +8,7 @@ import DomainKeywordSelector from '@/components/DomainKeywordSelector/DomainKeyw
 export default function SeoRecommendations() {
   const { generateText, loading, error, data } = useSeoRecommendations();
   const [streamedContent, setStreamedContent] = useState('');
-  const contentRef = useRef(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   const handleSubmit = (domain: string, keyword: string) => {
     generateText(keyword);
@@ -36,8 +36,8 @@ export default function SeoRecommendations() {
     }
   }, [streamedContent]);
 
-  const renderContent = (content) => {
-    return content.split('\n').map((paragraph:string, index:string) => {
+  const renderContent = (content: string) => {
+    return content.split('\n').map((paragraph: string, index: number) => {
       if (paragraph.startsWith('###')) {
         return <h1 key={index} className="text-3xl font-bold mt-8 mb-4 text-indigo-700">{paragraph.replace('###', '').trim()}</h1>;
       } else if (paragraph.startsWith('####')) {
@@ -63,7 +63,7 @@ export default function SeoRecommendations() {
       {error && <p className="text-red-500 mt-4">Error: {error}</p>}
       
       {streamedContent && (
-        <div 
+        <div
           ref={contentRef}
           className="mt-6 bg-white max-w-4xl shadow-lg rounded-lg p-6 overflow-y-scroll scrollbar-thin scrollbar-thumb max-h-[110vh] prose prose-indigo"
         >

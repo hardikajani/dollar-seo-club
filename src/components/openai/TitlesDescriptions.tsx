@@ -8,7 +8,7 @@ import DomainKeywordSelector from '@/components/DomainKeywordSelector/DomainKeyw
 export default function TitlesDescriptions() {
   const { generateText, loading, error, data } = useTitlesDescriptions();
   const [streamedContent, setStreamedContent] = useState('');
-  const contentRef = useRef(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   const handleSubmit = (domain: string, keyword: string) => {
     generateText(domain, keyword);
@@ -36,7 +36,7 @@ export default function TitlesDescriptions() {
     }
   }, [streamedContent]);
 
-  const formatContent = (content) => {
+  const formatContent = (content: string): JSX.Element[] => {
     return content
       .replace(/\*\*/g, '')
       .split('\n')

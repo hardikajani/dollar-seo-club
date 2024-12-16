@@ -8,7 +8,7 @@ import DomainKeywordSelector from '@/components/DomainKeywordSelector/DomainKeyw
 export default function ContentCreation() {
   const { generateText, loading, error, data } = useContentCreation();
   const [streamedContent, setStreamedContent] = useState('');
-  const contentRef = useRef(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   const handleSubmit = (domain: string, keyword: string) => {
     generateText(keyword);
