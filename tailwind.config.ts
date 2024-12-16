@@ -14,7 +14,7 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
-      typography: (theme) => ({
+      typography: ({ theme }: { theme: (path: string) => string }) => ({
         DEFAULT: {
           css: {
             color: theme('colors.gray.800'),
@@ -33,12 +33,10 @@ const config: Config = {
     typography,
     plugin(function ({ addUtilities }) {
       const scrollbarStyles = {
-        // For Firefox
         '.scrollbar-thin': {
           'scrollbar-width': 'thin',
-          'scrollbar-color': '#4A5568 #EDF2F7', // thumb color and track color
+          'scrollbar-color': '#4A5568 #EDF2F7',
         },
-        // For WebKit browsers
         '.scrollbar-thumb': {
           '&::-webkit-scrollbar': {
             width: '8px',
@@ -54,7 +52,7 @@ const config: Config = {
         },
       };
 
-      addUtilities(scrollbarStyles, ['responsive', 'hover']);
+      addUtilities(scrollbarStyles);
     }),
   ],
 };
