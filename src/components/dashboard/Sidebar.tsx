@@ -8,11 +8,11 @@ import { ChevronLast, X } from 'lucide-react';
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const sidebarRef = useRef(null);
+    const sidebarRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
                 setIsOpen(false);
             }
         };
@@ -43,8 +43,9 @@ const Sidebar = () => {
             {/* Sidebar */}
             <div
                 ref={sidebarRef}
-                className={`fixed inset-y-0 left-0 z-40 w-64 [background:radial-gradient(125%_125%_at_40%_40%,#F8FAFC_20%,#D1D5DB_100%)] shadow-lg transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'
-                    } lg:relative lg:translate-x-0`}
+                className={`fixed inset-y-0 left-0 z-40 w-64 [background:radial-gradient(125%_125%_at_40%_40%,#F8FAFC_20%,#D1D5DB_100%)] shadow-lg transform transition-transform duration-300 ease-in-out ${
+                    isOpen ? 'translate-x-0' : '-translate-x-full'
+                } lg:relative lg:translate-x-0`}
             >
                 <div className="flex flex-col h-full p-4 space-y-6">
                     <div className="flex items-center justify-between">
@@ -66,7 +67,8 @@ const Sidebar = () => {
                                     <Link 
                                         href={item.href}
                                         onClick={toggleSidebar}
-                                        className="flex items-center p-2 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400">
+                                        className="flex items-center p-2 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400"
+                                    >
                                         <span className="text-sm font-medium tracking-wider">{item.name}</span>
                                     </Link>
                                 </li>
