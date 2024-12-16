@@ -9,9 +9,36 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend);
 
+interface ChartData {
+    barData: {
+        labels: string[];
+        datasets: {
+            label: string;
+            data: number[];
+            backgroundColor: string[];
+        }[];
+    };
+    lineData: {
+        labels: string[];
+        datasets: {
+            label: string;
+            data: number[];
+            borderColor: string;
+            tension: number;
+        }[];
+    };
+    pieData: {
+        labels: string[];
+        datasets: {
+            data: number[];
+            backgroundColor: string[];
+        }[];
+    };
+}
+
 export default function BulkTrafficDisplay() {
     const { runTask, loading, error, data } = useBulkTraffic();
-    const [chartData, setChartData] = useState(null);
+    const [chartData, setChartData] = useState<ChartData | null>(null);
 
     const handleSubmit = (domain: string, keyword: string, taskId: string) => {
         const cleanDomain = (domain: string) => {

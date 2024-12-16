@@ -26,12 +26,80 @@ ChartJS.register(
     Legend
 );
 
+interface SearchIntentInfo {
+    main_intent: string;
+    last_updated_time: string; // Assuming this is a string, adjust if it's a Date object
+}
+
+interface KeywordProperties {
+    keyword_difficulty: number;
+    detected_language: string;
+}
+
+interface KeywordInfo {
+    monthly_searches: MonthlySearch[];
+    search_volume: number;
+    competition_level: string;
+    cpc?: number;
+}
+
+interface KeywordData {
+    keyword: string;
+    keyword_info: KeywordInfo;
+    keyword_properties: KeywordProperties;
+    search_intent_info?: SearchIntentInfo; // Make this optional if it may not always be present
+}
+
+interface MonthlySearch {
+    year: number;
+    month: number;
+    search_volume: number;
+}
+
+interface KeywordInfo {
+    monthly_searches: MonthlySearch[];
+    search_volume: number;
+    competition_level: string;
+    cpc?: number;
+}
+
+interface KeywordData {
+    keyword: string;
+    keyword_info: KeywordInfo;
+    keyword_properties: {
+        keyword_difficulty: number;
+        detected_language: string;
+    };
+}
+
+interface RankedSerpElement {
+    serp_item: {
+        rank_group: number;
+        url: string;
+    };
+}
+
+interface RankedKeyword {
+    keyword_data: KeywordData;
+    ranked_serp_element: RankedSerpElement;
+}
+
+interface RankingKeywordResponse {
+    rankedKeywords: {
+        tasks: {
+            result: {
+                items: RankedKeyword[];
+            }[];
+        }[];
+    };
+}
+
 export default function RankingKeywordDisplay() {
     const { runTask, loading, error, data } = useRankingKeyword();
-    const [selectedKeyword, setSelectedKeyword] = useState(null);
+    const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null);
 
-    const handleSubmit = (domain, keyword, taskId) => {
-        const cleanDomain = (domain) => {
+    const handleSubmit = (domain: string, keyword: string, taskId: string) => {
+        const cleanDomain = (domain: string) => {
             return domain
                 .replace(/^https?:\/\//, '')
                 .replace(/^www\./, '');
@@ -41,9 +109,9 @@ export default function RankingKeywordDisplay() {
         runTask(cleanedDomain, keyword);
     };
 
-    const rankedKeywords = data?.rankedKeywords?.tasks?.[0]?.result?.[0]?.items || [];
+    const rankedKeywords: RankedKeyword[] = data?.rankedKeywords?.tasks?.[0]?.result?.[0]?.items || [];
 
-    const renderHistoricalChart = (keyword) => {
+    const renderHistoricalChart = (keyword: string) => {
         const keywordData = rankedKeywords.find(item => item.keyword_data.keyword === keyword);
         if (!keywordData || !keywordData.keyword_data.keyword_info.monthly_searches) {
             return <p>No historical data available</p>;
@@ -101,24 +169,30 @@ export default function RankingKeywordDisplay() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {rankedKeywords.map((item, index) => (
-                                        <tr key={index} className="hover:bg-gray-100">
-                                            <td className="border px-4 py-2">{item.keyword_data.keyword}</td>
-                                            <td className="border px-4 py-2">{item.ranked_serp_element.serp_item.rank_group}</td>
-                                            <td className="border px-4 py-2 truncate max-w-xs">{item.ranked_serp_element.serp_item.url}</td>
-                                            <td className="border px-4 py-2">{item.keyword_data.keyword_info.search_volume}</td>
-                                            <td className="border px-4 py-2">{item.keyword_data.keyword_info.competition_level}</td>
-                                            <td className="border px-4 py-2">${item.keyword_data.keyword_info.cpc?.toFixed(2) || 'N/A'}</td>
-                                            <td className="border px-4 py-2">
-                                                <button
-                                                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                                    onClick={() => setSelectedKeyword(item.keyword_data.keyword)}
-                                                >
-                                                    Details
-                                                </button>
-                                            </td>
+                                    {rankedKeywords.length > 0 ? (
+                                        rankedKeywords.map((item: RankedKeyword, index: number) => (
+                                            <tr key={index} className="hover:bg-gray-100">
+                                                <td className="border px-4 py-2">{item.keyword_data.keyword}</td>
+                                                <td className="border px-4 py-2">{item.ranked_serp_element.serp_item.rank_group}</td>
+                                                <td className="border px-4 py-2 truncate max-w-xs">{item.ranked_serp_element.serp_item.url}</td>
+                                                <td className="border px-4 py-2">{item.keyword_data.keyword_info.search_volume}</td>
+                                                <td className="border px-4 py-2">{item.keyword_data.keyword_info.competition_level}</td>
+                                                <td className="border px-4 py-2">${item.keyword_data.keyword_info.cpc?.toFixed(2) || 'N/A'}</td>
+                                                <td className="border px-4 py-2">
+                                                    <button
+                                                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                                        onClick={() => setSelectedKeyword(item.keyword_data.keyword)}
+                                                    >
+                                                        Details
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={7} className="border px-4 py-2 text-center">No ranked keywords available</td>
                                         </tr>
-                                    ))}
+                                    )}
                                 </tbody>
                             </table>
                         </div>
@@ -126,7 +200,7 @@ export default function RankingKeywordDisplay() {
 
                     {selectedKeyword && (
                         <div className="bg-white shadow-lg rounded-lg p-6">
-                            <h2 className="text-2xl font-bold mb-4">Detailed Analysis for "{selectedKeyword}"</h2>
+                            <h2 className="text-2xl font-bold mb-4">Selected Keyword: {selectedKeyword}</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <h3 className="text-xl font-semibold mb-2">Historical Trend</h3>
@@ -134,18 +208,26 @@ export default function RankingKeywordDisplay() {
                                 </div>
                                 <div>
                                     <h3 className="text-xl font-semibold mb-2">Keyword Properties</h3>
-                                    {rankedKeywords.find(item => item.keyword_data.keyword === selectedKeyword)?.keyword_data.keyword_properties && (
-                                        <ul className="list-disc pl-5">
-                                            <li>Keyword Difficulty: {rankedKeywords.find(item => item.keyword_data.keyword === selectedKeyword).keyword_data.keyword_properties.keyword_difficulty}</li>
-                                            <li>Detected Language: {rankedKeywords.find(item => item.keyword_data.keyword === selectedKeyword).keyword_data.keyword_properties.detected_language}</li>
-                                        </ul>
+                                    {rankedKeywords.length > 0 && (
+                                        rankedKeywords.find(item => item.keyword_data.keyword === selectedKeyword)?.keyword_data.keyword_properties ? (
+                                            <ul className="list-disc pl-5">
+                                                <li>Keyword Difficulty: {rankedKeywords.find(item => item.keyword_data.keyword === selectedKeyword)?.keyword_data.keyword_properties.keyword_difficulty || 'N/A'}</li>
+                                                <li>Detected Language: {rankedKeywords.find(item => item.keyword_data.keyword === selectedKeyword)?.keyword_data.keyword_properties.detected_language || 'N/A'}</li>
+                                            </ul>
+                                        ) : (
+                                            <p>No keyword properties available</p>
+                                        )
                                     )}
                                     <h3 className="text-xl font-semibold mt-4 mb-2">Search Intent</h3>
-                                    {rankedKeywords.find(item => item.keyword_data.keyword === selectedKeyword)?.keyword_data.search_intent_info && (
-                                        <ul className="list-disc pl-5">
-                                            <li>Main Intent: {rankedKeywords.find(item => item.keyword_data.keyword === selectedKeyword).keyword_data.search_intent_info.main_intent}</li>
-                                            <li>Last Updated: {new Date(rankedKeywords.find(item => item.keyword_data.keyword === selectedKeyword).keyword_data.search_intent_info.last_updated_time).toLocaleDateString()}</li>
-                                        </ul>
+                                    {rankedKeywords.length > 0 && (
+                                        rankedKeywords.find(item => item.keyword_data.keyword === selectedKeyword)?.keyword_data.search_intent_info ? (
+                                            <ul className="list-disc pl-5">
+                                                <li>Main Intent: {rankedKeywords.find(item => item.keyword_data.keyword === selectedKeyword)?.keyword_data.search_intent_info.main_intent || 'N/A'}</li>
+                                                <li>Last Updated: {new Date(rankedKeywords.find(item => item.keyword_data.keyword === selectedKeyword)?.keyword_data.search_intent_info.last_updated_time || '').toLocaleDateString() || 'N/A'}</li>
+                                            </ul>
+                                        ) : (
+                                            <p>No search intent information available</p>
+                                        )
                                     )}
                                 </div>
                             </div>
