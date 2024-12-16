@@ -3,14 +3,20 @@ import { Domain } from '@/model/domain.Model'
 import dbConnect from '@/lib/dbConnect';
 import axios from 'axios';
 
-export async function PUT(request: NextRequest, { params }) {
+interface RouteParams {
+    params: {
+      id: string;
+    }
+  }
+
+  export async function PUT(request: NextRequest, { params }: RouteParams) {
     const { id } = params;
     await dbConnect();
     try {
         const domain = await Domain.findById(id);
 
         if (!domain) {
-            return res.status(404).json({ message: 'Domain not found' });
+            return NextResponse.json({ message: 'Domain not found' }, { status: 404 })
         }
 
         // Call DataforSEO API
@@ -41,7 +47,7 @@ export async function PUT(request: NextRequest, { params }) {
         await domain.save();
 
         return NextResponse.json(domain);
-    } catch (error) {
+    } catch (error:any) {
         return NextResponse.json({ message: error.message }, { status: 500 });
     }
 }
