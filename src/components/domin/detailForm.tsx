@@ -12,7 +12,6 @@ import { useDebounceCallback } from 'usehooks-ts';
 import { ApiResponse } from "@/types/ApiResponse";
 import { Loader2 } from "lucide-react";
 import { useUser } from '@clerk/nextjs';
-import Link from "next/link";
 
 const DominForm = () => {
     const { user } = useUser();
@@ -33,9 +32,9 @@ const DominForm = () => {
     });
 
     const { control, handleSubmit, reset, formState: { errors } } = registerForm;
-    const { fields, append, remove } = useFieldArray({
+    const { fields, append, remove } = useFieldArray<z.infer<typeof dominSchema>>({
         control,
-        name: "keywords",
+        name: "keywords" as const,
     });
 
     const checkDominUnique = useDebounceCallback(async (value: string) => {
@@ -87,9 +86,7 @@ const DominForm = () => {
 
     const handleAddKeyword = () => {
         if (keywordInput.trim()) {
-            append(keywordInput.trim());
-            // console.log("Keyword added:", keywordInput.trim());
-            // console.log("Current keywords:", registerForm.getValues("keywords"));
+            append({ value: keywordInput.trim() });
             setKeywordInput('');
         }
     };
@@ -124,7 +121,7 @@ const DominForm = () => {
                             className={clsx(
                                 'block w-full rounded-lg border border-transparent shadow ring-1 ring-black/10',
                                 'px-[calc(theme(spacing.2)-1px)] py-[calc(theme(spacing[1.5])-1px)] text-base/6 sm:text-sm/6',
-                                'data-[focus]:outline data-[focus]:outline-2 data-[focus]:-outline-offset-1 data-[focus]:outline-black'
+                                'data-[focus]:outline data-[focus]:outline- 2 data-[focus]:-outline-offset-1 data-[focus]:outline-black'
                             )}
                         />
                         {isChackingDomin && <Loader2 className="animate-spin" />}
@@ -167,18 +164,15 @@ const DominForm = () => {
                         </div>
                         <div className="mb-4">
                             <div className="flex flex-wrap gap-2">
-                                {registerForm.watch("keywords").map((keyword, index) => (
-                                    <>
-                                        <span
-                                            key={index}
-                                            className={`px-2 py-1 rounded-full text-sm bg-blue-100 text-blue-800`}
-                                        >
-                                            {keyword}
+                                {fields.map((field, index) => (
+                                    <div key={field.id} className="flex items-center">
+                                        <span className="px-2 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                                            {field.value}
                                         </span>
                                         <Button type="button" onClick={() => remove(index)} className="text-xl">
                                             -
                                         </Button>
-                                    </>
+                                    </div>
                                 ))}
                             </div>
                         </div>
