@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #fff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #fcfcfc;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family:  'Roboto', 'Open Sans', 'Helvetica Neue', sans-serif
+  
+  
+}
+
+.container {
+  max-width: 1580px; /* Set maximum width */
+  margin: 0 auto; /* Center the container */
+  width: 100%; /* Ensure it takes the full width until max-width */
+}
