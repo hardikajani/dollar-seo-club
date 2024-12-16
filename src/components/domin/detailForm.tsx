@@ -85,11 +85,11 @@ const DominForm = () => {
     }
 
     const handleAddKeyword = () => {
-        if (keywordInput.trim()) {
-            append({ value: keywordInput.trim() });
-            setKeywordInput('');
-        }
-    };
+  if (keywordInput.trim()) {
+    append({ value: keywordInput.trim() });
+    setKeywordInput('');
+  }
+};
 
     return (
         <div className="flex flex-col gap-5 md:items-center">
