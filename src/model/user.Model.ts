@@ -23,8 +23,8 @@ const UserSchema: Schema<IUser> = new Schema({
 });
 
 UserSchema.pre('save', function (next) {
-  if (this.email === null) {
-    this.email = undefined;
+  if (this.email === '') {
+    this.email = null;
   }
   next();
 });
