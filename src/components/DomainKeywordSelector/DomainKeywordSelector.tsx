@@ -10,15 +10,20 @@ interface DomainKeywordSelectorProps {
     buttonText: string;
 }
 
-const DomainKeywordSelector: React.FC<DomainKeywordSelectorProps> = ({ onSubmit, buttonText }) => {
-    const { domainHistory, loading, error } = useDomainHistory();    
+interface SelectOption {
+    _id: string;
+    value: string;
+}
 
+const DomainKeywordSelector: React.FC<DomainKeywordSelectorProps> = ({ onSubmit, buttonText }) => {
+    const { domainHistory, loading, error } = useDomainHistory();
+    
     // Always call useMemo, but handle the case where domainHistory is null or empty
-    const domainOptions = useMemo(() => {
-        return domainHistory 
+    const domainOptions = useMemo<SelectOption[]>(() => {
+        return domainHistory
             ? domainHistory
                 .filter(d => d.isApproved)
-                .map(d => ({ _id: d._id, value: d.domain, taskId: d.taskId }))
+                .map(d => ({ _id: d._id ? d._id.toString() : '', value: d.domain }))
             : [];
     }, [domainHistory]);
 
@@ -27,14 +32,14 @@ const DomainKeywordSelector: React.FC<DomainKeywordSelectorProps> = ({ onSubmit,
     const [selectedTaskId, setSelectedTaskId] = useState<string>('');
 
     // Filter keyword options based on the selected domain
-    const keywordOptions = useMemo(() => {
-        if (selectedDomain) {
-            const domain = domainHistory?.find(d => d.domain === selectedDomain && d.isApproved);
+    const keywordOptions = useMemo<SelectOption[]>(() => {
+        if (selectedDomain && domainHistory) {
+            const domain = domainHistory.find(d => d.domain === selectedDomain && d.isApproved);
             if (domain && Array.isArray(domain.keywords)) {
-                return domain.keywords.map(keyword => ({ _id: keyword._id, value: keyword.content }));
+                return domain.keywords.map(keyword => ({ _id: keyword._id ? keyword._id.toString() : '', value: keyword.content }));
             }
         }
-        return []; // Return an empty array if no domain is selected or not approved
+        return [];
     }, [selectedDomain, domainHistory]);
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -46,13 +51,14 @@ const DomainKeywordSelector: React.FC<DomainKeywordSelectorProps> = ({ onSubmit,
         }
     };
 
-    useEffect(() => {  
-      setSelectedKeyword('')
-      // Update selectedTaskId when selectedDomain changes
-      const selectedDomainOption = domainOptions.find(option => option.value === selectedDomain);
-      setSelectedTaskId(selectedDomainOption?.taskId || '');
-    }, [domainHistory, domainOptions, selectedDomain])
-    
+    useEffect(() => {
+        setSelectedKeyword('');
+        // Update selectedTaskId when selectedDomain changes
+        if (domainHistory) {
+            const selectedDomainOption = domainHistory.find(d => d.domain === selectedDomain);
+            setSelectedTaskId(selectedDomainOption?.taskId || '');
+        }
+    }, [domainHistory, selectedDomain]);
 
     // Handle loading and error states
     if (loading) {
