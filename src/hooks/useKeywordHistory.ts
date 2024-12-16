@@ -6,7 +6,7 @@ import { useAuth } from '@clerk/nextjs';
 import { IKeyword } from '@/model/domain.Model'
 
 export const useKeywordHistory = () => {
-    const [keywordHistory, setKeywordHistory] = useState<IKeyword | null>(null);
+    const [keywordHistory, setKeywordHistory] = useState<IKeyword[] | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const { userId } = useAuth();
