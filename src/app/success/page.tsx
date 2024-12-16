@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import Logo from '@/icons/logo';
 
-const SuccessPage = () => {
+const SuccessPageContent = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [isProcessing, setIsProcessing] = useState(false);
@@ -53,12 +54,20 @@ const SuccessPage = () => {
                 {isProcessing ? 'Processing Payment...' : 'Payment Successful!'}
             </h1>
             <p>
-                {isProcessing 
+                {isProcessing
                     ? 'Please wait while we process your order.'
                     : 'Your payment was successful. Thank you for your order!'
                 }
             </p>
         </div>
+    );
+};
+
+const SuccessPage = () => {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <SuccessPageContent />
+        </Suspense>
     );
 };
 

@@ -3,6 +3,8 @@ import { Domain } from "@/model/domain.Model";
 import { z } from "zod";
 import { domainValidation } from "@/schemas/dominSchema";
 
+export const dynamic = 'force-dynamic';
+
 const DomainQuerySchema = z.object({
     domain: domainValidation
 });
