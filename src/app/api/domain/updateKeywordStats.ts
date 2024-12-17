@@ -1,9 +1,9 @@
 import { Order } from '@/model/order.Model';
-import { Keyword } from '@/model/domain.Model';
+import { Domain } from '@/model/domain.Model';
 import { KeywordStats } from '@/model/keywordStats.Model';
 
-
 export async function updateKeywordStats(userId: string) {
+    // Count ordered keywords (unchanged)
     const orderedKeywordsCount = await Order.aggregate([
         {
             $match: { userId: userId }
@@ -16,9 +16,13 @@ export async function updateKeywordStats(userId: string) {
         }
     ]);
 
-    const addedKeywordsCount = await Keyword.aggregate([
+    // Count added keywords from Domain table
+    const addedKeywordsCount = await Domain.aggregate([
         {
             $match: { userId: userId }
+        },
+        {
+            $unwind: "$keywords"
         },
         {
             $group: {

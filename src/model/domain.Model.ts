@@ -35,7 +35,7 @@ const domainSchema: Schema<IDomain> = new Schema({
     domain: { type: String, required: true, unique: true }, // Domain name
     keywords: [keywordSchema], // Array of keyword IDs
     workDescription: { type: String },
-    taskId: { type: String, unique: true, default: '' },
+    taskId: { type: String, },
     isApproved: { type: Boolean, default: false }, // Approval status
 }, {
     timestamps: true,
@@ -43,6 +43,5 @@ const domainSchema: Schema<IDomain> = new Schema({
 
 // Ensure mongoose models are defined only once
 const Domain = mongoose.models.Domain || mongoose.model<IDomain>("Domain", domainSchema);
-const Keyword = mongoose.models.Keyword || mongoose.model<IKeyword>("Keyword", keywordSchema);
 
-export { Domain, Keyword };
+export { Domain };
