@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { Domain } from '@/model/domain.Model';
 import dbConnect from '@/lib/dbConnect';
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
     await dbConnect();
     try {
@@ -39,9 +41,21 @@ export async function GET() {
             }
         ]);
 
-        return NextResponse.json(domainsWithUserDetails);
+        return new NextResponse(JSON.stringify(domainsWithUserDetails), {
+            status: 200,
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-store, max-age=0',
+            },
+        });
     } catch (error) {
         console.error('Error fetching domains with user details:', error);
-        return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
+        return new NextResponse(JSON.stringify({ message: 'Internal Server Error' }), {
+            status: 500,
+            headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-store, max-age=0',
+            },
+        });
     }
 }
