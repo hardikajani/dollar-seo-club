@@ -1,18 +1,12 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 
-export async function POST(req: Request) {
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 second
+
+async function makeRequest(keyword: string, retries = 0): Promise<any> {
     try {
-        const body = await req.json();
-        const { keyword } = body;
-
-        if (!keyword) {
-            return NextResponse.json({ message: 'keyword is required' }, { status: 400 });
-        }
-
-
-        // Define the API requests
-        const summaryRequest = await axios.post(
+        const response = await axios.post(
             'https://api.dataforseo.com/v3/content_analysis/summary/live',
             [
                 {
@@ -32,28 +26,52 @@ export async function POST(req: Request) {
                 headers: {
                     'Authorization': `Basic ${Buffer.from(process.env.DATAFORSEO_API_KEY!).toString('base64')}`,
                     'Content-Type': 'application/json'
-                }
+                },
+                timeout: 29000 // Set a 29-second timeout (assuming a 30-second function timeout)
             }
         );
+        return response.data;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.code === 'ECONNABORTED' && retries < MAX_RETRIES) {
+            console.log(`Request timed out. Retrying (${retries + 1}/${MAX_RETRIES})...`);
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+            return makeRequest(keyword, retries + 1);
+        }
+        throw error;
+    }
+}
 
+export async function POST(req: Request) {
+    try {
+        const body = await req.json();
+        const { keyword } = body;
 
+        if (!keyword) {
+            return NextResponse.json({ message: 'keyword is required' }, { status: 400 });
+        }
 
-        // Execute all requests concurrently
-        const [summaryResponse] = await Promise.all([
-            summaryRequest,
-        ]);
+        const summaryResponse = await makeRequest(keyword);
 
-        // Combine results
         const combinedResult = {
-            summary: summaryResponse.data,
+            summary: summaryResponse,
         };
 
         return NextResponse.json(combinedResult);
     } catch (error) {
         console.error('API call failed:', error);
+        let errorMessage = 'Unknown error';
+        let statusCode = 500;
+
+        if (axios.isAxiosError(error)) {
+            errorMessage = error.message;
+            statusCode = error.response?.status || 500;
+        } else if (error instanceof Error) {
+            errorMessage = error.message;
+        }
+
         return NextResponse.json(
-            { status: 'error', results: error instanceof Error ? error.message : 'Unknown error' },
-            { status: 500 }
+            { status: 'error', message: errorMessage },
+            { status: statusCode }
         );
     }
 }
