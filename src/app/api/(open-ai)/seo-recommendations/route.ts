@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getGeneratedText } from "@/utils/generateText";
+import { generateText } from "@/utils/generateText";
 
 export async function POST(req: Request) {
   const { keyword } = await req.json()
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     `;
 
   try {
-    const generatedText = await getGeneratedText(prompt);
+    const generatedText = await generateText(prompt);
     return NextResponse.json({ text: generatedText });
 
 

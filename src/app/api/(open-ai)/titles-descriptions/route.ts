@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
-import { getGeneratedText } from '@/utils/generateText';
+import { generateText } from '@/utils/generateText';
 
 axiosRetry(axios, { retries: 2, retryDelay: axiosRetry.exponentialDelay });
 
@@ -76,7 +76,7 @@ export async function POST(req: Request) {
         - [etc.]
     `;
 
-    const generatedText = await getGeneratedText(prompt);
+    const generatedText = await generateText(prompt);
 
     return NextResponse.json({ text: generatedText });
   } catch (error:any) {
