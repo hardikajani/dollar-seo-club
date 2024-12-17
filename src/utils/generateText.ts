@@ -4,6 +4,10 @@ import { streamText } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { createStreamableValue } from 'ai/rsc';
 
+export const config = {
+  runtime: 'edge',
+};
+
 export async function generateText(input: string) {
   const stream = createStreamableValue('');
 

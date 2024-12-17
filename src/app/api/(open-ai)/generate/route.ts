@@ -1,29 +1,21 @@
 import { NextResponse } from 'next/server';
-import { generateText } from "@/utils/generateText"; // Adjust the import path as necessary
+import { streamText } from 'ai';
+import { openai } from '@ai-sdk/openai';
 
 export const runtime = 'edge';
 
 export async function POST(req: Request) {
-  const { keyword } = await req.json();
-  console.log(keyword);
-  if (!keyword) {
-    return new Response('Keyword is required', { status: 400 });
-  }
+  const { prompt } = await req.json();
 
-  const prompt: string = `
-    Generate a detailed, engaging, and SEO-optimized article focusing on the keyword: "${keyword}". 
-    Ensure the content is tailored to attract readers and rank highly in search engine results.
-    Include a compelling introduction, benefits, examples, and a strong conclusion.
-    Use proper HTML structure and natural occurrences of the keyword.
-  `;
+  const stream = streamText({
+    model: openai('gpt-4-turbo'),
+    prompt,
+  });
 
-  try {
-    const { output } = await generateText(prompt);
-    
-    return NextResponse.json({ output });
-    
-  } catch (error) {
-    console.error('Error generating text:', error);
-    return new Response('Error generating text', { status: 500 });
-  }
+  return new NextResponse(stream.textStream, {
+    headers: {
+      'Content-Type': 'text/plain',
+      'Transfer-Encoding': 'chunked',
+    },
+  });
 }
