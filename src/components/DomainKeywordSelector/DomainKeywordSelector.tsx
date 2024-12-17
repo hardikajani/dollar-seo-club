@@ -13,17 +13,19 @@ interface DomainKeywordSelectorProps {
 interface SelectOption {
     _id: string;
     value: string;
+    isApproved: boolean;
 }
 
 const DomainKeywordSelector: React.FC<DomainKeywordSelectorProps> = ({ onSubmit, buttonText }) => {
     const { domainHistory, loading, error } = useDomainHistory();
     
-    // Always call useMemo, but handle the case where domainHistory is null or empty
     const domainOptions = useMemo<SelectOption[]>(() => {
         return domainHistory
-            ? domainHistory
-                .filter(d => d.isApproved)
-                .map(d => ({ _id: d._id ? d._id.toString() : '', value: d.domain }))
+            ? domainHistory.map(d => ({
+                _id: d._id ? d._id.toString() : '',
+                value: d.domain,
+                isApproved: d.isApproved
+              }))
             : [];
     }, [domainHistory]);
 
@@ -31,12 +33,15 @@ const DomainKeywordSelector: React.FC<DomainKeywordSelectorProps> = ({ onSubmit,
     const [selectedKeyword, setSelectedKeyword] = useState<string>('');
     const [selectedTaskId, setSelectedTaskId] = useState<string>('');
 
-    // Filter keyword options based on the selected domain
     const keywordOptions = useMemo<SelectOption[]>(() => {
         if (selectedDomain && domainHistory) {
-            const domain = domainHistory.find(d => d.domain === selectedDomain && d.isApproved);
+            const domain = domainHistory.find(d => d.domain === selectedDomain);
             if (domain && Array.isArray(domain.keywords)) {
-                return domain.keywords.map(keyword => ({ _id: keyword._id ? keyword._id.toString() : '', value: keyword.content }));
+                return domain.keywords.map(keyword => ({
+                    _id: keyword._id ? keyword._id.toString() : '',
+                    value: keyword.content,
+                    isApproved: domain.isApproved
+                }));
             }
         }
         return [];
@@ -44,8 +49,11 @@ const DomainKeywordSelector: React.FC<DomainKeywordSelectorProps> = ({ onSubmit,
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (selectedDomain && selectedTaskId) {
+        const selectedDomainOption = domainOptions.find(d => d.value === selectedDomain);
+        if (selectedDomain && selectedTaskId && selectedDomainOption?.isApproved) {
             onSubmit(selectedDomain, selectedKeyword, selectedTaskId);
+        } else if (!selectedDomainOption?.isApproved) {
+            alert("Please wait for approval of your domain from admin");
         } else {
             alert("Please select a domain");
         }
@@ -53,14 +61,12 @@ const DomainKeywordSelector: React.FC<DomainKeywordSelectorProps> = ({ onSubmit,
 
     useEffect(() => {
         setSelectedKeyword('');
-        // Update selectedTaskId when selectedDomain changes
         if (domainHistory) {
             const selectedDomainOption = domainHistory.find(d => d.domain === selectedDomain);
             setSelectedTaskId(selectedDomainOption?.taskId || '');
         }
     }, [domainHistory, selectedDomain]);
 
-    // Handle loading and error states
     if (loading) {
         return <Loader />;
     }
@@ -70,14 +76,22 @@ const DomainKeywordSelector: React.FC<DomainKeywordSelectorProps> = ({ onSubmit,
     }
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-row max-lg:flex-col px-10 lg:space-x-5 max-lg:space-y-5 w-auto lg:max-w-2xl">
+        <form onSubmit={handleSubmit} className="flex flex-row px-10 gap-x-5 w-auto lg:max-w-2xl">
             <Select
-                options={domainOptions}
+                options={domainOptions.map(option => ({
+                    ...option,
+                    label: option.isApproved ? option.value : `${option.value} (Pending Approval)`
+                }))}
                 value={selectedDomain}
                 onChange={setSelectedDomain}
                 placeholder="Select a domain"
                 label="Domain"
             />
+            {domainOptions.some(d => !d.isApproved) && (
+                <div className="text-yellow-600 text-sm">
+                    Some domains are pending approval. Please wait for admin approval.
+                </div>
+            )}
             <Select
                 options={keywordOptions}
                 value={selectedKeyword}
@@ -85,12 +99,19 @@ const DomainKeywordSelector: React.FC<DomainKeywordSelectorProps> = ({ onSubmit,
                 placeholder="Select a keyword"
                 label="Keyword"
             />
+            <div className='flex flex-col justify-end'>
             <button
                 type="submit"
-                className="w-auto px-2 py-1.5 my-7 text-white bg-blue-800 rounded-md hover:bg-blue-700 focus:outline-none"
+                className={` px-2 py-1.5 text-white rounded-md focus:outline-none ${
+                    domainOptions.find(d => d.value === selectedDomain)?.isApproved
+                        ? 'bg-blue-800 hover:bg-blue-700'
+                        : 'bg-gray-400 cursor-not-allowed'
+                }`}
+                disabled={!domainOptions.find(d => d.value === selectedDomain)?.isApproved}
             >
                 {buttonText}
             </button>
+            </div>
         </form>
     );
 };
