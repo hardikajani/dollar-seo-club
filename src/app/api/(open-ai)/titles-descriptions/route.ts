@@ -4,8 +4,6 @@ import axios from 'axios';
 import axiosRetry from 'axios-retry';
 import { generateText } from '@/utils/generateText';
 
-export const runtime = 'edge';
-
 axiosRetry(axios, { retries: 2, retryDelay: axiosRetry.exponentialDelay });
 
 async function fetchWebContent(url:any) {
