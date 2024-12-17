@@ -6,12 +6,12 @@ import Loader from "../Loader/Loader";
 import DomainKeywordSelector from '@/components/DomainKeywordSelector/DomainKeywordSelector';
 
 export default function SeoRecommendations() {
-  const { generateText, loading, error, data } = useSeoRecommendations();
+  const { aiGenerateText, loading, error, data } = useSeoRecommendations();
   const [streamedContent, setStreamedContent] = useState('');
   const contentRef = useRef<HTMLDivElement | null>(null);
 
   const handleSubmit = (domain: string, keyword: string) => {
-    generateText(keyword);
+    aiGenerateText(keyword);
     setStreamedContent('');
   };
 
