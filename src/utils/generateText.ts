@@ -9,7 +9,7 @@ export async function generateText(input: string) {
 
   (async () => {
     const { textStream } = streamText({
-      model: openai('gpt-4-turbo'), // Use the appropriate model
+      model: openai('gpt-4-turbo'),
       prompt: input,
     });
 
