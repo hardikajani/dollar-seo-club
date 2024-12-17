@@ -6,12 +6,12 @@ import Loader from "../Loader/Loader";
 import DomainKeywordSelector from '@/components/DomainKeywordSelector/DomainKeywordSelector';
 
 export default function TitlesDescriptions() {
-  const { generateText, loading, error, data } = useTitlesDescriptions();
+  const { aiGenerateText, loading, error, data } = useTitlesDescriptions();
   const [streamedContent, setStreamedContent] = useState('');
   const contentRef = useRef<HTMLDivElement | null>(null);
 
   const handleSubmit = (domain: string, keyword: string) => {
-    generateText(domain, keyword);
+    aiGenerateText(domain, keyword);
     setStreamedContent('');
   };
 
