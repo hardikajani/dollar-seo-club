@@ -1,3 +1,25 @@
+import React from 'react';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+  Treemap,
+  LineChart,
+  Line,
+} from 'recharts';
+
 
 interface SummaryData {
   target: string;
@@ -32,6 +54,9 @@ interface BacklinkSummaryProps {
   };
 }
 
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#FF6699', '#9966FF', '#FF99CC'];
+
+
 const BacklinkSummary: React.FC<BacklinkSummaryProps> = ({ data }) => {
   if (!data || !data.summary || !data.backlinks || !data.referringDomains) {
     return <div>Loading data...</div>;
@@ -50,6 +75,38 @@ const BacklinkSummary: React.FC<BacklinkSummaryProps> = ({ data }) => {
   const brokenBacklinks = summaryData.broken_backlinks || 0;
   const brokenBacklinksPercentage = totalBacklinks > 0 ? ((brokenBacklinks / totalBacklinks) * 100).toFixed(1) : '0.0';
 
+  const dataForPieChart = [
+    { name: 'Dofollow', value: dofollowBacklinks },
+    { name: 'Nofollow', value: nofollowBacklinks },
+  ];
+
+  // Data for Broken Backlinks Pie Chart
+  const dataForBrokenBacklinks = [
+    { name: 'Working', value: totalBacklinks - brokenBacklinks },
+    { name: 'Broken', value: brokenBacklinks },
+  ];
+
+  const radarData = Object.entries(summaryData.referring_links_types || {}).map(([key, value]) => ({
+    subject: key,
+    A: value,
+    fullMark: Math.max(...Object.values(summaryData.referring_links_types || {})),
+  }));
+
+  // New data for Treemap
+  const treemapData = Object.entries(summaryData.referring_links_tld || {}).map(([name, size]) => ({
+    name,
+    size,
+  }));
+
+  // Dummy data for Line Chart (replace with actual historical data if available)
+  const lineChartData = [
+    { name: 'Jan', backlinks: totalBacklinks * 0.8 },
+    { name: 'Feb', backlinks: totalBacklinks * 0.85 },
+    { name: 'Mar', backlinks: totalBacklinks * 0.9 },
+    { name: 'Apr', backlinks: totalBacklinks * 0.95 },
+    { name: 'May', backlinks: totalBacklinks },
+  ];
+
   const topReferringTLDs = Object.entries(summaryData.referring_links_tld || {})
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3);
@@ -59,7 +116,7 @@ const BacklinkSummary: React.FC<BacklinkSummaryProps> = ({ data }) => {
     .slice(0, 2);
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-gray-100 rounded-lg shadow-md">
+    <div className="max-w-6xl mx-auto p-6 bg-gray-100 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-4 text-blue-600">Backlink Summary for {target}</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -74,77 +131,113 @@ const BacklinkSummary: React.FC<BacklinkSummaryProps> = ({ data }) => {
           <h3 className="text-lg font-semibold mb-2 text-gray-700">Referring Domains</h3>
           <p className="text-3xl font-bold text-green-500">{referringDomains.toLocaleString()}</p>
         </div>
+      </div>
 
-        {/* Dofollow vs Nofollow */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+        {/* Dofollow vs Nofollow Pie Chart */}
         <div className="bg-white p-4 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-2 text-gray-700">Dofollow vs Nofollow</h3>
-          <div className="flex items-center">
-            <div className="w-4/5 bg-blue-200 rounded-full h-4">
-              <div
-                className="bg-blue-500 rounded-full h-4"
-                style={{ width: `${dofollowPercentage}%` }}
-              ></div>
-            </div>
-            <span className="ml-2 text-sm text-gray-600">{dofollowPercentage}% Dofollow</span>
-          </div>
+          <ResponsiveContainer width="100%" height={200}>
+            <PieChart>
+              <Pie
+                data={dataForPieChart}
+                cx="50%"
+                cy="50%"
+                outerRadius={60}
+                fill="#8884d8"
+                dataKey="value"
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+              >
+                {dataForPieChart.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
 
-        {/* Broken Backlinks */}
+        {/* Broken Backlinks Pie Chart */}
         <div className="bg-white p-4 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-2 text-gray-700">Broken Backlinks</h3>
-          <div className="flex items-center">
-            <div className="w-4/5 bg-red-200 rounded-full h-4">
-              <div
-                className="bg-red-500 rounded-full h-4"
-                style={{ width: `${brokenBacklinksPercentage}%` }}
-              ></div>
-            </div>
-            <span className="ml-2 text-sm text-gray-600">{brokenBacklinksPercentage}%</span>
-          </div>
+          <ResponsiveContainer width="100%" height={200}>
+            <PieChart>
+              <Pie
+                data={dataForBrokenBacklinks}
+                cx="50%"
+                cy="50%"
+                outerRadius={60}
+                fill="#8884d8"
+                dataKey="value"
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+              >
+                {dataForBrokenBacklinks.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
-      </div>
 
-      {/* Top Referring TLDs */}
-      <div className="mt-6 bg-white p-4 rounded-lg shadow">
-        <h3 className="text-lg font-semibold mb-2 text-gray-700">Top Referring TLDs</h3>
-        <div className="flex justify-between">
-          {topReferringTLDs.length > 0 ? (
-            topReferringTLDs.map(([tld, count], index) => (
-              <div key={index} className="text-center">
-                <p className={`text-2xl font-bold text-${['blue', 'green', 'yellow'][index]}-500`}>
-                  {count.toLocaleString()}
-                </p>
-                <p className="text-sm text-gray-600">.{tld}</p>
-              </div>
-            ))
-          ) : (
-            <p>No data available</p>
-          )}
+        {/* Radar Chart for Backlink Types */}
+        <div className="bg-white p-4 rounded-lg shadow">
+          <h3 className="text-lg font-semibold mb-2 text-gray-700">Backlink Types</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+              <PolarGrid />
+              <PolarAngleAxis dataKey="subject" />
+              <PolarRadiusAxis angle={30} domain={[0, 'auto']} />
+              <Radar name="Backlink Types" dataKey="A" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+              <Legend />
+            </RadarChart>
+          </ResponsiveContainer>
         </div>
-      </div>
 
-      {/* Top Backlink Types */}
-      <div className="mt-6 bg-white p-4 rounded-lg shadow">
-        <h3 className="text-lg font-semibold mb-2 text-gray-700">Top Backlink Types</h3>
-        <div className="flex justify-between">
-          {topBacklinkTypes.map(([type, count], index) => (
-            <div key={index} className="text-center">
-              <p className={`text-2xl font-bold text-${['purple', 'indigo'][index]}-500`}>
-                {count.toLocaleString()}
-              </p>
-              <p className="text-sm text-gray-600">{type}</p>
-            </div>
-          ))}
+        {/* Treemap for Referring Domains */}
+        <div className="bg-white p-4 rounded-lg shadow">
+          <h3 className="text-lg font-semibold mb-2 text-gray-700">Top Referring TLDs</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <Treemap
+              data={treemapData}
+              dataKey="size"
+              aspectRatio={4 / 3}
+              stroke="#fff"
+              fill="#8884d8"
+            >
+              <Tooltip formatter={(value, name) => [`${value} backlinks`, name]} />
+            </Treemap>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Line Chart for Backlink Growth */}
+        <div className="bg-white p-4 rounded-lg shadow">
+          <h3 className="text-lg font-semibold mb-2 text-gray-700">Backlink Growth</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={lineChartData}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="backlinks" stroke="#8884d8" activeDot={{ r: 8 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Domain Authority */}
+        <div className="bg-white p-4 rounded-lg shadow flex flex-col justify-center items-center">
+          <h3 className="text-lg font-semibold mb-2 text-gray-700">Domain Authority</h3>
+          <p className="text-5xl font-bold text-purple-500">{summaryData.rank || 'N/A'}</p>
         </div>
       </div>
 
       {/* Backlink Sources */}
       <div className="mt-6 bg-white p-4 rounded-lg shadow">
         <h3 className="text-lg font-semibold mb-2 text-gray-700">Backlink Sources</h3>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {Object.entries(summaryData.referring_links_platform_types || {}).length > 0 ? (
             Object.entries(summaryData.referring_links_platform_types || {}).slice(0, 4).map(([type, count], index) => (
-              <div key={index} className="text-center">
+              <div key={index} className="text-center bg-gray-50 p-2 rounded">
                 <p className="text-lg font-semibold text-gray-700">{count.toLocaleString()}</p>
                 <p className="text-sm text-gray-600">{type}</p>
               </div>
@@ -153,12 +246,6 @@ const BacklinkSummary: React.FC<BacklinkSummaryProps> = ({ data }) => {
             <p>No data available</p>
           )}
         </div>
-      </div>
-
-      {/* Domain Authority */}
-      <div className="mt-6 bg-white p-4 rounded-lg shadow">
-        <h3 className="text-lg font-semibold mb-2 text-gray-700">Domain Authority</h3>
-        <p className="text-3xl font-bold text-purple-500">{summaryData.rank || 'N/A'}</p>
       </div>
     </div>
   );
