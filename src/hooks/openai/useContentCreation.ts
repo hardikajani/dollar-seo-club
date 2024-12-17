@@ -1,18 +1,33 @@
 import { useState } from 'react';
-import axios from 'axios';
+import { generateText } from "@/utils/generateText";
+import { readStreamableValue } from 'ai/rsc';
+
+export const maxDuration = 30;
+
 
 export function useContentCreation() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<string>('');
 
-  const generateText = async (keyword: string) => {
+  const aiGenerateText = async (keyword: string) => {
+    const prompt: string = `
+    Generate a detailed, engaging, and SEO-optimized article focusing on the keyword: "${keyword}". 
+    Ensure the content is tailored to attract readers and rank highly in search engine results.
+    Include a compelling introduction, benefits, examples, and a strong conclusion.
+    Use proper HTML structure and natural occurrences of the keyword.
+  `;
+
     setLoading(true);
     setError(null);
     
     try {
-      const response = await axios.post('/api/generate', {keyword});
-      setData(response.data.text);
+      const { output } = await generateText(prompt);
+
+    for await (const delta of readStreamableValue(output)) {
+      setData(currentGeneration => `${currentGeneration}${delta}`);
+    }
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -20,5 +35,5 @@ export function useContentCreation() {
     }
   };
 
-  return { generateText, loading, error, data };
+  return { aiGenerateText, loading, error, data };
 }

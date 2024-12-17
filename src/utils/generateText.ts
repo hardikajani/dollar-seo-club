@@ -1,15 +1,24 @@
-import { generateText } from "ai";
-import { openai } from "@ai-sdk/openai";
+'use server';
 
-export const getGeneratedText = async (userPrompt:string) => {
-  try {
-    const { text } = await generateText({
-      model: openai("gpt-4-turbo"), // Specify the model you want to use
-      prompt: userPrompt, // Use the user-provided prompt
+import { streamText } from 'ai';
+import { openai } from '@ai-sdk/openai';
+import { createStreamableValue } from 'ai/rsc';
+
+export async function generateText(input: string) {
+  const stream = createStreamableValue('');
+
+  (async () => {
+    const { textStream } = streamText({
+      model: openai('gpt-4-turbo'), // Use the appropriate model
+      prompt: input,
     });
-    return text; // Return the generated text
-  } catch (error) {
-    console.error("Error generating text:", error);
-    throw new Error("Failed to generate text");
-  }
-};
+
+    for await (const delta of textStream) {
+      stream.update(delta);
+    }
+
+    stream.done();
+  })();
+
+  return { output: stream.value };
+}
