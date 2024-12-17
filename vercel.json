@@ -2,9 +2,6 @@
   "functions": {
     "app/api/**/*": {
       "maxDuration": 60
-    },
-    "api/content-analysis/route.ts": {
-      "maxDuration": 60
     }
   }
 }
