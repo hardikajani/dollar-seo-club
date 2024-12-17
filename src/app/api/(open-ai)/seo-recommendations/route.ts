@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { generateText } from "@/utils/generateText";
 
+export const runtime = 'edge';
+
 export async function POST(req: Request) {
   const { keyword } = await req.json()
 //   console.log(keyword)
