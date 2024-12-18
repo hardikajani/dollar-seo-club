@@ -76,7 +76,7 @@ const DominForm = () => {
                 setKeywordInput('');
                 const successMessage = response.data.message || 'Data added successfully';
                 alert(successMessage);                
-                router.replace('/dashboard')
+                router.push('/dashboard')
                 
             }
 
