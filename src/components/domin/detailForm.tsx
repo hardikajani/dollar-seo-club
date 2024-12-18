@@ -12,6 +12,7 @@ import { useDebounceCallback } from 'usehooks-ts';
 import { ApiResponse } from "@/types/ApiResponse";
 import { Loader2 } from "lucide-react";
 import { useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 
 const DominForm = () => {
     const { user } = useUser();
@@ -20,6 +21,7 @@ const DominForm = () => {
     const [isChackingDomin, setIsChackingDomin] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [keywordInput, setKeywordInput] = useState('');
+    const router = useRouter();
 
 
     const registerForm = useForm<z.infer<typeof dominSchema>>({
@@ -72,6 +74,10 @@ const DominForm = () => {
                 setDomin('');
                 setDominMessage('');
                 setKeywordInput('');
+                const successMessage = response.data.message || 'Data added successfully';
+                alert(successMessage);                
+                router.replace('/dashboard')
+                
             }
 
         } catch (error) {
