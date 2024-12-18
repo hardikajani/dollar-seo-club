@@ -16,7 +16,7 @@ interface KeywordInfo {
   keyword: string;
   keyword_info: {
     search_volume: number;
-    cpc?: number; // Optional if it can be undefined
+    cpc?: number;
     competition_level: string;
   };
 }
@@ -35,7 +35,10 @@ const SEODataDisplay: React.FC<SEODataDisplayProps> = ({ data }) => {
   // Helper function to safely access nested properties
   const safelyAccessNestedProp = (obj: any, path: string, defaultValue: any = 'N/A', transform?: (value: any) => any) => {
     const value = path.split('.').reduce((acc, part) => acc && acc[part], obj);
-    return value !== undefined ? (transform ? transform(value) : value) : defaultValue;
+    if (value === null || value === undefined) {
+      return defaultValue;
+    }
+    return transform ? transform(value) : value;
   };
 
   return (
@@ -71,14 +74,21 @@ const SEODataDisplay: React.FC<SEODataDisplayProps> = ({ data }) => {
               </tr>
             </thead>
             <tbody>
-              {safelyAccessNestedProp(keywordForSite, 'tasks.0.result.0.items', []).map((item: any, index: number) => (
-                <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                  <td className="border px-4 py-2">{item.keyword}</td>
-                  <td className="border px-4 py-2">{safelyAccessNestedProp(item, 'keyword_info.search_volume', 'N/A')}</td>
-                  <td className="border px-4 py-2">${safelyAccessNestedProp(item, 'keyword_info.cpc', 'N/A', (value) => value.toFixed(2))}</td>
-                  <td className="border px-4 py-2">{safelyAccessNestedProp(item, 'keyword_info.competition_level', 'N/A ')}</td>
+              {Array.isArray(safelyAccessNestedProp(keywordForSite, 'tasks.0.result.0.items', [])) &&
+                safelyAccessNestedProp(keywordForSite, 'tasks.0.result.0.items', []).length > 0 ? (
+                safelyAccessNestedProp(keywordForSite, 'tasks.0.result.0.items', []).map((item: any, index: number) => (
+                  <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                    <td className="border px-4 py-2">{item.keyword}</td>
+                    <td className="border px-4 py-2">{safelyAccessNestedProp(item, 'keyword_info.search_volume', 'N/A')}</td>
+                    <td className="border px-4 py-2">${safelyAccessNestedProp(item, 'keyword_info.cpc', 'N/A', (value) => value.toFixed(2))}</td>
+                    <td className="border px-4 py-2">{safelyAccessNestedProp(item, 'keyword_info.competition_level', 'N/A')}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="border px-4 py-2 text-center">No data available</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
