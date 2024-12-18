@@ -29,7 +29,7 @@ interface KeywordForSiteData {
   }[];
 }
 
-const SEODataDisplay: React.FC<{ data: SEOData }> = ({ data }) => {
+const SEODataDisplay: React.FC<SEODataDisplayProps> = ({ data }) => {
   const { onPage, keywordForSite, keywordSuggestions, rankedKeywords, backlinksSummary } = data;
 
   // Helper function to safely access nested properties
@@ -47,11 +47,11 @@ const SEODataDisplay: React.FC<{ data: SEOData }> = ({ data }) => {
         <h2 className="text-2xl font-semibold mb-4 text-blue-500">On-Page Analysis</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <p className="font-medium">Total Items: {safelyAccessNestedProp(onPage, 'tasks.0.result.0.items_count')}</p>
-            <p className="font-medium">Crawl Progress: {safelyAccessNestedProp(onPage, 'tasks.0.result.0.items.0.crawl_progress')}</p>
+            <p className="font-medium">Total Items: {safelyAccessNestedProp(onPage, 'tasks.0.result.0.items_count', 'N/A')}</p>
+            <p className="font-medium">Crawl Progress: {safelyAccessNestedProp(onPage, 'tasks.0.result.0.items.0.crawl_progress', 'N/A')}</p>
           </div>
           <div>
-            <p className="font-medium">Pages Crawled: {safelyAccessNestedProp(onPage, 'tasks.0.result.0.items.0.crawl_status.pages_crawled')}</p>
+            <p className="font-medium">Pages Crawled: {safelyAccessNestedProp(onPage, 'tasks.0.result.0.items.0.crawl_status.pages_crawled', 'N/A')}</p>
             <p className="font-medium">OnPage Score: {safelyAccessNestedProp(onPage, 'tasks.0.result.0.items.0.onpage_score', 'N/A', (value) => value.toFixed(2))}</p>
           </div>
         </div>
@@ -74,9 +74,9 @@ const SEODataDisplay: React.FC<{ data: SEOData }> = ({ data }) => {
               {safelyAccessNestedProp(keywordForSite, 'tasks.0.result.0.items', []).map((item: any, index: number) => (
                 <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
                   <td className="border px-4 py-2">{item.keyword}</td>
-                  <td className="border px-4 py-2">{safelyAccessNestedProp(item, 'keyword_info.search_volume')}</td>
-                  <td className="border px-4 py-2">${safelyAccessNestedProp(item, ' keyword_info.cpc', 'N/A', (value) => value.toFixed(2))}</td>
-                  <td className="border px-4 py-2">{safelyAccessNestedProp(item, 'keyword_info.competition_level')}</td>
+                  <td className="border px-4 py-2">{safelyAccessNestedProp(item, 'keyword_info.search_volume', 'N/A')}</td>
+                  <td className="border px-4 py-2">${safelyAccessNestedProp(item, 'keyword_info.cpc', 'N/A', (value) => value.toFixed(2))}</td>
+                  <td className="border px-4 py-2">{safelyAccessNestedProp(item, 'keyword_info.competition_level', 'N/A ')}</td>
                 </tr>
               ))}
             </tbody>
@@ -87,8 +87,8 @@ const SEODataDisplay: React.FC<{ data: SEOData }> = ({ data }) => {
       {/* Keyword Suggestions API */}
       <section className="mb-8 bg-white rounded-lg shadow-md p-6">
         <h2 className="text-2xl font-semibold mb-4 text-blue-500">Keyword Suggestions</h2>
-        <p className="font-medium">Seed Keyword: {safelyAccessNestedProp(keywordSuggestions, 'tasks.0.result.0.seed_keyword')}</p>
-        <p className="font-medium">Total Suggestions: {safelyAccessNestedProp(keywordSuggestions, 'tasks.0.result.0.items_count')}</p>
+        <p className="font-medium">Seed Keyword: {safelyAccessNestedProp(keywordSuggestions, 'tasks.0.result.0.seed_keyword', 'N/A')}</p>
+        <p className="font-medium">Total Suggestions: {safelyAccessNestedProp(keywordSuggestions, 'tasks.0.result.0.items_count', 'N/A')}</p>
       </section>
 
       {/* Ranked Keywords API */}
@@ -96,16 +96,16 @@ const SEODataDisplay: React.FC<{ data: SEOData }> = ({ data }) => {
         <h2 className="text-2xl font-semibold mb-4 text-blue-500">Ranked Keywords</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <p className="font-medium">Total Keywords: {safelyAccessNestedProp(rankedKeywords, 'tasks.0.result.0.total_count')}</p>
+            <p className="font-medium">Total Keywords: {safelyAccessNestedProp(rankedKeywords, 'tasks.0.result.0.total_count', 'N/A')}</p>
             <p className="font-medium">Organic Traffic Value: ${safelyAccessNestedProp(rankedKeywords, 'tasks.0.result.0.metrics.organic.etv', 'N/A', (value) => value.toFixed(2))}</p>
           </div>
           <div>
             <p className="font-medium">Top 10 Rankings: {
               (Number(safelyAccessNestedProp(rankedKeywords, 'tasks.0.result.0.metrics.organic.pos_1', 0)) +
                 Number(safelyAccessNestedProp(rankedKeywords, 'tasks.0.result.0.metrics.organic.pos_2_3', 0)) +
-                Number(safelyAccessNestedProp(rankedKeywords, 'tasks.0.result.0.metrics.organic.pos_4_10', 0))).toString()
+                Number(safelyAccessNestedProp(rankedKeywords, 'tasks.0.result.0.metrics.organic.pos_4_10', 0))).toString() || 'N/A'
             }</p>
-            <p className="font-medium">New Rankings: {safelyAccessNestedProp(rankedKeywords, 'tasks.0.result.0.metrics.organic.is_new')}</p>
+            <p className="font-medium">New Rankings: {safelyAccessNestedProp(rankedKeywords, 'tasks.0.result.0.metrics.organic.is_new', 'N/A')}</p>
           </div>
         </div>
       </section>
@@ -115,11 +115,11 @@ const SEODataDisplay: React.FC<{ data: SEOData }> = ({ data }) => {
         <h2 className="text-2xl font-semibold mb-4 text-blue-500">Backlinks Summary</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <p className="font-medium">Total Backlinks: {safelyAccessNestedProp(backlinksSummary, 'tasks.0.result.0.backlinks')}</p>
-            <p className="font-medium">Referring Domains: {safelyAccessNestedProp(backlinksSummary, 'tasks.0.result.0.referring_domains')}</p>
+            <p className="font-medium">Total Backlinks: {safelyAccessNestedProp(backlinksSummary, 'tasks.0.result.0.backlinks', 'N/A')}</p>
+            <p className="font-medium">Referring Domains: {safelyAccessNestedProp(backlinksSummary, 'tasks.0.result.0.referring_domains', 'N/A')}</p>
           </div>
           <div>
-            <p className="font-medium">Domain Rank: {safelyAccessNestedProp(backlinksSummary, 'tasks.0.result.0.rank')}</p>
+            <p className="font-medium">Domain Rank: {safelyAccessNestedProp(backlinksSummary, 'tasks.0.result.0.rank', 'N/A')}</p>
             <p className="font-medium">First Seen: {safelyAccessNestedProp(backlinksSummary, 'tasks.0.result.0.first_seen', 'N/A', (value) => new Date(value).toLocaleDateString())}</p>
           </div>
         </div>
