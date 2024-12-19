@@ -90,7 +90,7 @@ const OnPageTaskResult: React.FC<OnPageTaskResultProps> = ({ data }) => {
         <div className="bg-green-100 p-4 rounded-md">
           <h3 className="text-lg font-semibold mb-2">SEO Elements</h3>
           <p><strong>Title:</strong> {meta.title}</p>
-          <p><strong>Description:</strong> {meta.description.substring(0, 100)}...</p>
+          <p><strong>Description:</strong> {meta.description?.substring(0, 100)}</p>
           <p><strong>H1:</strong> {meta.htags.h1 ? meta.htags.h1[0] : 'N/A'}</p>
         </div>
 
